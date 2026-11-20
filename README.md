@@ -1,5 +1,9 @@
 # Thursday 19 November 2026 — The World in One Day (Aa, 2/3)
 
+[![make.fun](https://make.fun/badge/news-image-20261119.svg)](https://make.fun/bounty/news-image-20261119)
+[![rank](https://make.fun/badge/news-image-20261119/zoelicious/news-image-20261119-aa-2of3/rank.svg)](https://make.fun/bounty/news-image-20261119)
+[![reward](https://make.fun/badge/news-image-20261119/zoelicious/news-image-20261119-aa-2of3/reward.svg)](https://make.fun/bounty/news-image-20261119)
+
 One image that sums up Thursday 19 November 2026 in world news: 35 stories
 across every continent — a first-ever trilateral in Shenzhen, a genocide
 verdict in The Hague, Anthropic's record IPO on its first day of trading,
