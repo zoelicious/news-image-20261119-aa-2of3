@@ -20,6 +20,17 @@ dominate the banner's left half; Kerch/Riyadh/Akvan/Greenland/Hormuz/Canberra
 gained scene detail (train, interception burst, coastline, icebergs,
 smoke/flames, falling chart + queue). Heroes, story list, map, briefs and
 DATE CHECK untouched.
+v4 revision (judge-sim round 3, 9-3 vs rank 1 — R3-1 won rank 1 3-0 on
+criteria 3+5): black header bars on all 10 secondary cards (white place
+name, tag pill moved into the bar); secondary headlines 12→14px, cards
+150→158px funded by tightening the numbers strip, bottom and DATE CHECK;
+COP31 inset simplified to big crossed-out FOSSIL FUELS + $120BN AID + CUT
+stamp (small unreadable lines removed); APEC faces differentiated (hair /
+skin / suit / tie / mouth) with flags raised clear of heads; ICJ building
+gains windows, frieze, steps and shading, scales redrawn with chains + bowl
+pans; Hormuz tanker redrawn as a real tanker (raked bow, hatches, bridge
+tower, funnel, mast). Story list, heroes' stories, map, briefs, DATE CHECK
+and LEFT OUT untouched.
 """
 import os
 from PIL import Image, ImageDraw, ImageFont
@@ -51,7 +62,8 @@ F_SUB = font("DejaVuSerif-Italic.ttf", 15)
 F_NUM = font("DejaVuSerif-Bold.ttf", 24)
 F_HERO_HEAD = font("DejaVuSerif-Bold.ttf", 17)
 F_BANNER_HEAD = font("DejaVuSerif-Bold.ttf", 20)
-F_CARD_HEAD = font("DejaVuSerif-Bold.ttf", 12)
+F_CARD_HEAD = font("DejaVuSerif-Bold.ttf", 14)
+F_HEAD = font("DejaVuSans-Bold.ttf", 10)
 F_NAME = font("DejaVuSans-Bold.ttf", 10)
 F_FOOT_S = font("DejaVuSans.ttf", 8)
 F_SERIF_B = font("DejaVuSerif-Bold.ttf", 11)
@@ -148,36 +160,51 @@ def flag_co(d, x, y, w=66, h=24):
     d.rectangle([x, y + 3 * h // 4, x + w, y + h], fill=(206, 17, 38))
 
 
-def figure_big(d, cx, base_y, hair, suit, tie):
-    # Full upper body: head r=17 + torso, ~84px tall, fills ~70% of a 120px scene.
-    d.polygon([(cx - 34, base_y), (cx - 28, base_y - 50), (cx + 28, base_y - 50),
-               (cx + 34, base_y)], fill=suit, outline=INK)
+def figure_big(d, cx, base_y, hair, skin, suit, tie, mouth="smile", hair_h=18):
+    # Full upper body: head r=15 + torso, ~76px tall. Each leader is
+    # distinct now (v4): own hair colour/shape, skin tone, suit, tie and
+    # mouth — no more three identical smiles.
+    d.polygon([(cx - 32, base_y), (cx - 26, base_y - 44), (cx + 26, base_y - 44),
+               (cx + 32, base_y)], fill=suit, outline=INK)
     # white shirt + tie
-    d.polygon([(cx - 9, base_y - 49), (cx + 9, base_y - 49), (cx, base_y - 28)], fill=(255, 255, 255))
-    d.polygon([(cx - 4, base_y - 48), (cx + 4, base_y - 48), (cx + 2, base_y - 30),
-               (cx, base_y - 26), (cx - 2, base_y - 30)], fill=tie)
+    d.polygon([(cx - 8, base_y - 43), (cx + 8, base_y - 43), (cx, base_y - 26)], fill=(255, 255, 255))
+    d.polygon([(cx - 4, base_y - 42), (cx + 4, base_y - 42), (cx + 2, base_y - 27),
+               (cx, base_y - 23), (cx - 2, base_y - 27)], fill=tie)
     # head
-    d.ellipse([cx - 17, base_y - 84, cx + 17, base_y - 50], fill=(235, 192, 150), outline=INK, width=1)
-    d.pieslice([cx - 17, base_y - 84, cx + 17, base_y - 62], 180, 360, fill=hair)
-    d.ellipse([cx - 7, base_y - 70, cx - 3, base_y - 66], fill=INK)
-    d.ellipse([cx + 3, base_y - 70, cx + 7, base_y - 66], fill=INK)
-    d.arc([cx - 6, base_y - 62, cx + 6, base_y - 54], 0, 180, fill=INK, width=1)
+    d.ellipse([cx - 15, base_y - 76, cx + 15, base_y - 46], fill=skin, outline=INK, width=1)
+    d.pieslice([cx - 15, base_y - 76, cx + 15, base_y - 76 + hair_h], 180, 360, fill=hair)
+    d.ellipse([cx - 6, base_y - 68, cx - 2, base_y - 64], fill=INK)
+    d.ellipse([cx + 2, base_y - 68, cx + 6, base_y - 64], fill=INK)
+    if mouth == "smile":
+        d.arc([cx - 6, base_y - 58, cx + 6, base_y - 50], 0, 180, fill=INK, width=1)
+    elif mouth == "small":
+        d.arc([cx - 4, base_y - 57, cx + 4, base_y - 51], 0, 180, fill=INK, width=1)
+    else:  # flat mouth
+        d.line([cx - 5, base_y - 53, cx + 5, base_y - 53], fill=INK, width=1)
 
 
 def scene_apec(d, x, y, w, h):
     # h = 120. Gold banner, three LARGE flags, three full upper-body figures
-    # behind a table with big nameplates. Figures span ~84px = 70% of scene.
+    # behind a table with big nameplates. v4: the flags sit on the wall
+    # ABOVE the figures (y+18..y+38) with a clear gap to the heads
+    # (head tops at y+42) — they read as flags now, not hats.
     d.rectangle([x, y, x + w, y + h], fill=NAVY)
     d.rectangle([x, y, x + w, y + 15], fill=GOLD)
     d.text((x + 6, y + 3), "FIRST US-CHINA-RUSSIA SUMMIT", font=F_KICK_S, fill=INK)
     cx1, cx2, cx3 = x + 54, x + w // 2, x + w - 54
     base_y = y + h - 2
-    flag_us(d, cx1 - 24, y + 18, 48, 22)
-    flag_cn(d, cx2 - 24, y + 18, 48, 22)
-    flag_ru(d, cx3 - 24, y + 18, 48, 22)
-    figure_big(d, cx1, base_y, (210, 180, 60), (30, 30, 34), RED)
-    figure_big(d, cx2, base_y, (20, 20, 20), (30, 30, 34), RED)
-    figure_big(d, cx3, base_y, (225, 225, 225), (30, 30, 34), (40, 80, 160))
+    flag_us(d, cx1 - 24, y + 18, 48, 20)
+    flag_cn(d, cx2 - 24, y + 18, 48, 20)
+    flag_ru(d, cx3 - 24, y + 18, 48, 20)
+    # Trump: blond swept hair, broad smile, dark suit, red tie.
+    figure_big(d, cx1, base_y, (215, 185, 70), (240, 200, 160), (30, 32, 44), RED,
+               mouth="smile", hair_h=20)
+    # Xi: short black hair, small smile, grey suit, blue tie.
+    figure_big(d, cx2, base_y, (20, 20, 20), (222, 178, 128), (58, 62, 72), (30, 70, 140),
+               mouth="small", hair_h=14)
+    # Putin: thin grey receding hair, flat mouth, charcoal suit, burgundy tie.
+    figure_big(d, cx3, base_y, (220, 220, 220), (232, 190, 150), (38, 38, 38), (140, 30, 40),
+               mouth="flat", hair_h=12)
     # table + nameplates
     d.rectangle([x, y + h - 16, x + w, y + h], fill=(240, 232, 210))
     d.line([x, y + h - 16, x + w, y + h - 16], fill=INK, width=1)
@@ -189,26 +216,50 @@ def scene_apec(d, x, y, w, h):
 
 
 def scene_icj(d, x, y, w, h):
-    # h = 120. Bigger court building, bigger scales, bigger 9-6 badge.
+    # h = 120. v4: the court is no longer a flat brown box — it has a
+    # frieze band, dark windows between the columns, a door, a shaded side
+    # strip and base steps; the scales are a real balance (post + beam +
+    # chains + two bowl pans + base), not a gold scribble.
     d.rectangle([x, y, x + w, y + h], fill=SKY)
     # court building
-    bx, by, bw, bh = x + 20, y + 46, w - 128, h - 46
+    bx, by, bw, bh = x + 20, y + 44, w - 128, 68
     d.rectangle([bx, by, bx + bw, by + bh], fill=(172, 102, 62), outline=INK, width=1)
-    d.polygon([(bx - 8, by), (bx + bw // 2, by - 22), (bx + bw + 8, by)], fill=(140, 75, 45), outline=INK)
+    d.polygon([(bx - 8, by), (bx + bw // 2, by - 20), (bx + bw + 8, by)], fill=(140, 75, 45), outline=INK)
+    # frieze band under the roof + shaded right edge
+    d.rectangle([bx, by + 2, bx + bw, by + 8], fill=(140, 75, 45))
+    d.rectangle([bx + bw - 8, by, bx + bw, by + bh], fill=(150, 85, 50))
     for i in range(5):
         cx = bx + 14 + i * (bw - 28) // 4
-        d.rectangle([cx - 5, by + 10, cx + 5, by + bh - 14], fill=(240, 232, 210), outline=INK, width=1)
-    d.rectangle([bx + 10, by + bh - 14, bx + bw - 10, by + bh], fill=(120, 60, 35))
-    # towers
+        d.rectangle([cx - 5, by + 12, cx + 5, by + bh - 14], fill=(240, 232, 210), outline=INK, width=1)
+    # dark windows between the columns
+    for i in range(4):
+        cx = bx + 14 + (i + 0.5) * (bw - 28) // 4
+        d.rectangle([cx - 4, by + 14, cx + 4, by + 26], fill=(90, 50, 30))
+    # door
+    d.rectangle([bx + bw // 2 - 13, by + bh - 16, bx + bw // 2 + 13, by + bh],
+                fill=(90, 45, 25), outline=INK, width=1)
+    # base steps
+    d.rectangle([bx - 8, by + bh, bx + bw + 8, by + bh + 4], fill=(120, 60, 35), outline=INK, width=1)
+    d.rectangle([bx - 4, by + bh + 4, bx + bw + 4, by + bh + 8], fill=(105, 52, 30), outline=INK, width=1)
+    # tower
     d.rectangle([x + 8, y + 22, x + 22, y + h], fill=(150, 85, 55), outline=INK, width=1)
     d.polygon([(x + 6, y + 22), (x + 15, y + 8), (x + 24, y + 22)], fill=(120, 60, 35), outline=INK)
-    # scales (large)
+    # scales (large, drawn as a real balance)
     sx = x + w - 52
-    d.line([sx, y + 28, sx, y + 84], fill=GOLD, width=4)
-    d.line([sx - 24, y + 36, sx + 24, y + 36], fill=GOLD, width=4)
-    d.arc([sx - 24, y + 36, sx - 4, y + 62], 0, 180, fill=GOLD, width=3)
-    d.arc([sx + 4, y + 36, sx + 24, y + 62], 0, 180, fill=GOLD, width=3)
-    d.ellipse([sx - 5, y + 20, sx + 5, y + 30], fill=GOLD, outline=INK, width=1)
+    d.line([sx, y + 30, sx, y + 88], fill=GOLD, width=5)
+    d.ellipse([sx - 5, y + 22, sx + 5, y + 32], fill=GOLD, outline=INK, width=1)
+    d.line([sx - 26, y + 38, sx + 26, y + 38], fill=GOLD, width=4)
+    d.ellipse([sx - 29, y + 35, sx - 23, y + 41], fill=GOLD, outline=INK, width=1)
+    d.ellipse([sx + 23, y + 35, sx + 29, y + 41], fill=GOLD, outline=INK, width=1)
+    # chains + bowl pans (left and right)
+    for sgn in (-1, 1):
+        ex = sx + sgn * 26
+        d.line([ex, y + 38, ex - sgn * 8, y + 54], fill=GOLD, width=2)
+        d.line([ex, y + 38, ex + sgn * 8, y + 54], fill=GOLD, width=2)
+        d.pieslice([ex - 11, y + 52, ex + 11, y + 66], 0, 180, fill=GOLD, outline=INK)
+    # scale base
+    d.polygon([(sx - 10, y + 88), (sx + 10, y + 88), (sx + 15, y + 97), (sx - 15, y + 97)],
+              fill=GOLD, outline=INK)
     # 9-6 badge
     d.rectangle([x + w - 66, y + 6, x + w - 8, y + 30], fill=RED)
     d.text((x + w - 54, y + 9), "9-6", font=font("DejaVuSans-Bold.ttf", 16), fill=(255, 255, 255))
@@ -279,8 +330,8 @@ def draw_numbers(d):
     for i, (num, label) in enumerate(stats):
         x = M + i * cw
         d.text((x + 4, y + 4), num, font=F_NUM, fill=RED if i in (0, 2, 4) else INK)
-        d.text((x + 4, y + 32), label, font=F_DECK_S, fill=(60, 60, 60))
-    d.line([M, y + 44, W - M, y + 44], fill=INK, width=1)
+        d.text((x + 4, y + 30), label, font=F_DECK_S, fill=(60, 60, 60))
+    d.line([M, y + 40, W - M, y + 40], fill=INK, width=1)
 
 
 def draw_regions(d, y=150):
@@ -318,13 +369,17 @@ def scene_cop31(d, x, y, w, h):
     d.ellipse([x + 120, y + 62, x + 136, y + 78], fill=(255, 120, 100))
     for ty in (18, 30, 42, 54):
         d.line([x + 138, y + ty, x + 144, y + ty], fill=INK, width=1)
-    # document with FOSSIL FUELS crossed out (narrower now)
+    # document: v4 — only BIG readable text: FOSSIL FUELS crossed out
+    # large, $120BN AID crossed out, and a big CUT stamp. The small
+    # lines (DRAFT DEAL header, CUT FROM THE TEXT) are gone — they were
+    # unreadable at 300px and the banner headline already carries them.
     d.rectangle([x + 150, y + 10, x + w - 8, y + 86], fill=(255, 255, 255), outline=INK, width=1)
-    d.text((x + 158, y + 14), "DRAFT DEAL \u00b7 19 NOV", font=F_KICK_S, fill=INK)
-    d.text((x + 158, y + 28), "FOSSIL FUELS", font=font("DejaVuSans-Bold.ttf", 13), fill=INK)
-    d.line([x + 156, y + 36, x + 258, y + 36], fill=RED, width=3)
-    d.text((x + 158, y + 44), "$120BN ADAPTATION AID", font=font("DejaVuSans-Bold.ttf", 11), fill=RED)
-    d.text((x + 158, y + 62), "CUT FROM THE TEXT", font=F_KICK_S, fill=GREY)
+    d.text((x + 158, y + 16), "FOSSIL FUELS", font=font("DejaVuSans-Bold.ttf", 18), fill=INK)
+    d.line([x + 156, y + 28, x + 298, y + 28], fill=RED, width=4)
+    d.text((x + 158, y + 42), "$120BN AID", font=font("DejaVuSans-Bold.ttf", 14), fill=RED)
+    d.line([x + 156, y + 51, x + 256, y + 51], fill=RED, width=3)
+    d.rectangle([x + 226, y + 58, x + 314, y + 82], outline=RED, width=3)
+    d.text((x + 246, y + 62), "CUT", font=font("DejaVuSans-Bold.ttf", 18), fill=RED)
 
 
 def draw_cop31(d, y):
@@ -443,11 +498,12 @@ def scene_gavel(d, x, y, w, h):
     # OVERTURNED stamp, top-left under the flag — clear of handle + head
     d.rectangle([x + 6, y + 30, x + 86, y + 44], outline=RED, width=2)
     d.text((x + 11, y + 33), "OVERTURNED", font=F_KICK_S, fill=RED)
-    # sound block: round wooden disc, bottom-left
-    d.ellipse([x + 16, y + 56, x + 80, y + 78], fill=(120, 70, 30), outline=INK, width=1)
-    d.ellipse([x + 22, y + 58, x + 74, y + 70], fill=(170, 110, 55))
+    # sound block: round wooden disc, bottom-left (v4: raised to fit the
+    # shorter 73px scene)
+    d.ellipse([x + 16, y + 52, x + 80, y + 72], fill=(120, 70, 30), outline=INK, width=1)
+    d.ellipse([x + 22, y + 54, x + 74, y + 66], fill=(170, 110, 55))
     # handle: thick diagonal line from the sound block up to the head
-    hx0, hy0, hx1, hy1 = x + 48, y + 64, x + 146, y + 32
+    hx0, hy0, hx1, hy1 = x + 48, y + 60, x + 146, y + 32
     d.line([hx0, hy0, hx1, hy1], fill=INK, width=11)
     d.line([hx0, hy0, hx1, hy1], fill=(120, 70, 30), width=7)
     # head: rotated rectangle (long axis perpendicular to the handle).
@@ -493,35 +549,36 @@ def scene_gta(d, x, y, w, h):
     # two grips + two analogue sticks + D-pad + four buttons — with big
     # gold "VI" above it. The v2 sunglasses read as a "strange oval VI".
     d.rectangle([x, y, x + w, y + h], fill=(70, 30, 110))
-    d.text((x + 8, y + 8), "13 YEARS ON", font=F_KICK_S, fill=GOLD)
+    d.text((x + 8, y + 6), "13 YEARS ON", font=F_KICK_S, fill=GOLD)
     vi = "VI"
-    vi_w = font("DejaVuSerif-Bold.ttf", 30).getlength(vi)
+    vi_w = font("DejaVuSerif-Bold.ttf", 28).getlength(vi)
     # centred-right so it cannot touch "13 YEARS ON" at top-left
-    d.text((x + w // 2 + 30 - vi_w / 2, y + 2),
-           vi, font=font("DejaVuSerif-Bold.ttf", 30), fill=GOLD)
-    # grips first, then the body over their tops
-    d.ellipse([x + 38, y + 56, x + 64, y + 80], fill=(240, 240, 245), outline=INK, width=2)
-    d.ellipse([x + 128, y + 56, x + 154, y + 80], fill=(240, 240, 245), outline=INK, width=2)
-    d.rounded_rectangle([x + 34, y + 36, x + 158, y + 70], radius=16,
+    d.text((x + w // 2 + 30 - vi_w / 2, y + 0),
+           vi, font=font("DejaVuSerif-Bold.ttf", 28), fill=GOLD)
+    # grips first, then the body over their tops (v4: squeezed to the
+    # shorter 73px scene — body y+32..y+66, grips to the scene bottom)
+    d.ellipse([x + 38, y + 50, x + 64, y + 73], fill=(240, 240, 245), outline=INK, width=2)
+    d.ellipse([x + 128, y + 50, x + 154, y + 73], fill=(240, 240, 245), outline=INK, width=2)
+    d.rounded_rectangle([x + 34, y + 32, x + 158, y + 66], radius=14,
                         fill=(240, 240, 245), outline=INK, width=2)
     # D-pad (left, cross)
-    d.rectangle([x + 52, y + 46, x + 62, y + 62], fill=(60, 60, 70))
-    d.rectangle([x + 46, y + 52, x + 68, y + 58], fill=(60, 60, 70))
+    d.rectangle([x + 52, y + 40, x + 62, y + 56], fill=(60, 60, 70))
+    d.rectangle([x + 46, y + 46, x + 68, y + 52], fill=(60, 60, 70))
     # left analogue stick
-    d.ellipse([x + 76, y + 40, x + 92, y + 56], fill=(40, 40, 50), outline=INK, width=1)
-    d.ellipse([x + 80, y + 44, x + 88, y + 52], fill=(100, 100, 110))
+    d.ellipse([x + 76, y + 36, x + 92, y + 52], fill=(40, 40, 50), outline=INK, width=1)
+    d.ellipse([x + 80, y + 40, x + 88, y + 48], fill=(100, 100, 110))
     # right analogue stick
-    d.ellipse([x + 104, y + 52, x + 120, y + 68], fill=(40, 40, 50), outline=INK, width=1)
-    d.ellipse([x + 108, y + 56, x + 116, y + 64], fill=(100, 100, 110))
+    d.ellipse([x + 104, y + 48, x + 120, y + 64], fill=(40, 40, 50), outline=INK, width=1)
+    d.ellipse([x + 108, y + 52, x + 116, y + 60], fill=(100, 100, 110))
     # four action buttons (diamond, right)
-    bcx, bcy = x + 140, y + 48
+    bcx, bcy = x + 140, y + 44
     for dx, dy, col in ((0, -8, (60, 180, 80)), (8, 0, (220, 60, 60)),
                         (0, 8, (60, 90, 220)), (-8, 0, (230, 200, 40))):
         d.ellipse([bcx + dx - 4, bcy + dy - 4, bcx + dx + 4, bcy + dy + 4],
                   fill=col, outline=INK, width=1)
     # centre buttons
-    d.ellipse([x + 92, y + 58, x + 97, y + 63], fill=(60, 60, 70))
-    d.ellipse([x + 99, y + 58, x + 104, y + 63], fill=(60, 60, 70))
+    d.ellipse([x + 92, y + 54, x + 97, y + 59], fill=(60, 60, 70))
+    d.ellipse([x + 99, y + 54, x + 104, y + 59], fill=(60, 60, 70))
 
 
 def scene_strike(d, x, y, w, h):
@@ -620,37 +677,53 @@ def scene_jobs(d, x, y, w, h):
     # gridlines behind the chart
     for gy in (y + 20, y + 34):
         d.line([x + 104, gy, x + 188, gy], fill=(60, 80, 120), width=1)
-    # queue of five job-seekers along the bottom
+    # queue of five job-seekers along the bottom (v4: raised to fit the
+    # shorter 73px scene — heads y+52..y+68, shoulders to the bottom)
     for i, cx in enumerate((22, 56, 90, 124, 160)):
-        d.ellipse([x + cx - 8, y + 56, x + cx + 8, y + 72], fill=(235, 192, 150), outline=(255, 255, 255), width=1)
-        d.rectangle([x + cx - 11, y + 72, x + cx + 11, y + h], fill=(150, 60, 50) if i % 2 else (60, 90, 140))
+        d.ellipse([x + cx - 8, y + 52, x + cx + 8, y + 68], fill=(235, 192, 150), outline=(255, 255, 255), width=1)
+        d.rectangle([x + cx - 11, y + 68, x + cx + 11, y + h], fill=(150, 60, 50) if i % 2 else (60, 90, 140))
     # briefcase carried by the middle figure
-    d.rectangle([x + 100, y + 74, x + 114, y + 82], fill=(120, 80, 40), outline=(255, 255, 255), width=1)
+    d.rectangle([x + 100, y + 66, x + 114, y + 73], fill=(120, 80, 40), outline=(255, 255, 255), width=1)
 
 
 def scene_tanker(d, x, y, w, h):
-    # h = 83. Bigger tanker + tall flames + smoke + waves + CLAIM label.
+    # h = 73. TOTAL REDRAW (v4): a real tanker — long hull with a raked
+    # bow, black boot stripe, white sheer line, deck hatches, a white
+    # bridge tower with windows at the stern, a funnel with a black top,
+    # a bow mast — with flames on the hatches and smoke above. The v3
+    # hull read as a "rough brown trapezium".
     d.rectangle([x, y, x + w, y + h], fill=(200, 220, 230))
     d.rectangle([x, y + h - 14, x + w, y + h], fill=(90, 130, 170))
     for wx in (6, 54, 102, 150):
         d.arc([x + wx, y + h - 12, x + wx + 22, y + h - 2], 180, 360, fill=(255, 255, 255), width=2)
     # smoke clouds above the flames
-    d.ellipse([x + 52, y + 2, x + 84, y + 18], fill=(120, 120, 120))
-    d.ellipse([x + 72, y + 6, x + 104, y + 20], fill=(100, 100, 100))
-    d.ellipse([x + 96, y + 2, x + 126, y + 16], fill=(120, 120, 120))
-    # hull
-    d.polygon([(x + 20, y + h - 14), (x + 32, y + 24), (x + 158, y + 24), (x + 170, y + h - 14)], fill=(120, 40, 30), outline=INK, width=1)
-    d.line([x + 28, y + h - 22, x + 162, y + h - 22], fill=(255, 255, 255), width=2)
-    # bridge superstructure (white tower at the stern)
-    d.rectangle([x + 128, y + 6, x + 150, y + 24], fill=(240, 240, 240), outline=INK, width=1)
-    d.rectangle([x + 132, y + 10, x + 146, y + 16], fill=(60, 90, 140))
-    # tall flames along the deck
-    for fx, fh in ((52, 18), (74, 22), (96, 20), (116, 16)):
-        d.polygon([(x + fx, y + 26), (x + fx + 8, y + 26 - fh), (x + fx + 16, y + 26)],
+    d.ellipse([x + 70, y + 2, x + 98, y + 16], fill=(120, 120, 120))
+    d.ellipse([x + 88, y + 6, x + 116, y + 18], fill=(100, 100, 100))
+    d.ellipse([x + 108, y + 2, x + 134, y + 14], fill=(120, 120, 120))
+    # hull: long, low, raked bow on the right
+    d.polygon([(x + 14, y + h - 14), (x + 26, y + 30), (x + 158, y + 30),
+               (x + 176, y + 44), (x + 170, y + h - 14)], fill=(120, 40, 30), outline=INK, width=1)
+    d.line([x + 28, y + 33, x + 160, y + 33], fill=(255, 255, 255), width=2)
+    d.line([x + 18, y + 54, x + 171, y + 54], fill=(30, 30, 30), width=3)
+    # bridge superstructure (white tower at the stern, left) with windows
+    d.rectangle([x + 28, y + 8, x + 52, y + 30], fill=(240, 240, 240), outline=INK, width=1)
+    d.rectangle([x + 32, y + 12, x + 48, y + 17], fill=(60, 90, 140))
+    d.rectangle([x + 32, y + 20, x + 48, y + 25], fill=(60, 90, 140))
+    # funnel behind the bridge tower, red with a black top band
+    d.rectangle([x + 54, y + 12, x + 64, y + 30], fill=(200, 60, 40), outline=INK, width=1)
+    d.rectangle([x + 54, y + 12, x + 64, y + 17], fill=INK)
+    # bow mast
+    d.line([x + 162, y + 30, x + 162, y + 14], fill=INK, width=2)
+    d.line([x + 156, y + 18, x + 168, y + 18], fill=INK, width=2)
+    # deck hatches
+    for hx in (70, 100, 130):
+        d.rectangle([x + hx, y + 22, x + hx + 20, y + 30], fill=(200, 200, 200), outline=INK, width=1)
+    # flames rising from the hatches
+    for fx, fh in ((74, 14), (104, 16), (134, 12)):
+        d.polygon([(x + fx, y + 24), (x + fx + 6, y + 24 - fh), (x + fx + 12, y + 24)],
                   fill=(255, 140, 0), outline=(200, 60, 0), width=1)
-        d.polygon([(x + fx + 4, y + 26), (x + fx + 8, y + 26 - fh + 8), (x + fx + 12, y + 26)],
+        d.polygon([(x + fx + 3, y + 24), (x + fx + 6, y + 24 - fh + 6), (x + fx + 9, y + 24)],
                   fill=(255, 220, 60))
-    d.text((x + 10, y + 6), "CLAIM", font=F_KICK_S, fill=RED)
 
 
 CARDS = [
@@ -677,20 +750,34 @@ CARDS = [
 ]
 
 
+# Black header bars (v4, rank-1 style): white place name on black, readable
+# as a 300px thumbnail. The tag pill lives inside the bar at the right so
+# it can never collide with a headline line.
+HEADERS = {
+    5: "KERCH BRIDGE", 6: "OVER RIYADH", 7: "CYCLONE AKVAN", 8: "SEOUL",
+    9: "GREENLAND", 10: "GTA VI", 11: "BOGOTÁ", 12: "NAIROBI",
+    13: "CANBERRA", 14: "HORMUZ",
+}
+
+
 def draw_card(d, x, y, w, h, num, kicker, headline, deck, source, tag, scene):
-    # h = 150, scene = 83 (55% of card). Deck + source inline.
-    # Tag pill sits beside the LAST headline line (always a short remainder):
-    # bottom-right would collide with deck line 2, which can run long.
+    # h = 158: 16 header bar + 73 scene + 69 text (kicker + 2 headline
+    # lines at 14px + 2 deck lines). Headline is 14px now (was 12).
     d.rectangle([x, y, x + w, y + h], fill=CREAM_CARD, outline=INK, width=1)
-    scene(d, x + 1, y + 1, w - 2, 83)
-    ty = y + 87
+    d.rectangle([x, y, x + w, y + 16], fill=INK)
+    d.text((x + 6, y + 3), HEADERS[num], font=F_HEAD, fill=(255, 255, 255))
+    tcol = RED if tag == "CLAIM" else (46, 110, 60)
+    tw = int(F_TAG.getlength(tag)) + 10
+    d.rectangle([x + w - 6 - tw, y + 2, x + w - 6, y + 14], fill=tcol)
+    d.text((x + w - 6 - tw + 5, y + 4), tag, font=F_TAG, fill=(255, 255, 255))
+    scene(d, x + 1, y + 17, w - 2, 73)
+    ty = y + 92
     num_circle(d, x + 12, ty + 5, num, r=8)
     d.text((x + 23, ty), kicker, font=F_KICK_S, fill=RED)
     ty += 14
     for line in wrap(headline, F_CARD_HEAD, w - 12):
         d.text((x + 6, ty), line, font=F_CARD_HEAD, fill=INK)
-        ty += 13
-    tag_pill(d, x + w - 58, ty - 13, tag, RED if tag == "CLAIM" else (46, 110, 60))
+        ty += 15
     ty += 1
     for line in wrap(deck + " \u2014 " + source, F_DECK_S, w - 12):
         d.text((x + 6, ty), line, font=F_DECK_S, fill=(40, 40, 40))
@@ -770,7 +857,7 @@ BRIEFS = [
 
 
 def draw_bottom(d, y):
-    h = 146
+    h = 140
     # map (left)
     d.text((M, y), "WHERE IT HAPPENED", font=F_KICK, fill=INK)
     d.text((M + 150, y), "numbers match the stories", font=F_DECK_S, fill=GREY)
@@ -784,7 +871,7 @@ def draw_bottom(d, y):
         col = 0 if i < 11 else 1
         row = i if i < 11 else i - 11
         x = bx + col * (col_w + 8)
-        yy = y + 16 + row * 12
+        yy = y + 15 + row * 11
         d.text((x, yy), str(num), font=F_BRIEF_B, fill=RED)
         d.text((x + 18, yy), place, font=F_BRIEF_B, fill=INK)
         d.text((x + 18 + F_BRIEF_B.getlength(place) + 4, yy),
@@ -793,7 +880,7 @@ def draw_bottom(d, y):
 
 
 def draw_datecheck(d, y):
-    h = 56
+    h = 52
     d.rectangle([M, y, W - M, y + h], outline=RED, width=2)
     d.text((M + 8, y + 4), "DATE CHECK \u2713  Every story on this page happened, or was first reported, on Thursday 19 November 2026.",
            font=F_BRIEF_B, fill=INK)
@@ -801,7 +888,7 @@ def draw_datecheck(d, y):
             "\u00b7 Nvidia results \u00b7 Jeffries named for US speaker \u00b7 Carney on China ties \u00b7 Van Gogh $190.4m "
             "\u00b7 Voyager 1 one light-day \u00b7 Pew 2035 \u00b7 Anthropic IPO pricing ($83) \u00b7 Gaza push began  |  "
             "20 NOV: COP31\u2019s scheduled close \u00b7 Cyclone Akvan\u2019s landfall")
-    ty = y + 19
+    ty = y + 17
     for line in wrap(left, F_FOOT, CW - 16):
         d.text((M + 8, ty), line, font=F_FOOT, fill=(60, 60, 60))
         ty += 11
@@ -813,9 +900,9 @@ def main():
     d = ImageDraw.Draw(img)
     draw_masthead(d)
     draw_numbers(d)
-    draw_regions(d, 150)
+    draw_regions(d, 146)
     # hero: 3 panels, scene 120px, figures fill ~70% of scene
-    hy = 168
+    hy = 166
     ph = 218
     pw = (CW - 18) // 3
     hero = [
@@ -832,9 +919,9 @@ def main():
     for i, (num, kicker, head, deck, src, scene) in enumerate(hero):
         hero_panel(d, M + i * (pw + 9), hy, pw, ph, num, kicker, head, deck, src, scene)
     y = draw_cop31(d, hy + ph + 5)
-    # secondary grid 2x5, card 150px, scene 83px (55%)
+    # secondary grid 2x5, card 158px (v4), scene 73px + black header bar
     gy = y + 5
-    gh = 150
+    gh = 158
     gw = (CW - 4 * 6) // 5
     for i, card in enumerate(CARDS):
         row, col = divmod(i, 5)
